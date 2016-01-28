@@ -30,8 +30,12 @@ public class Triangle extends Shape{
      */
     public Triangle(double x_origin, double y_origin, double b, double h, Color c){
         super(x_origin, y_origin, c);
-        this.base = b;
-        this.height = h;
+        if (b > 0 && h > 0) {
+            this.base = b;
+            this.height = h;
+        } else {
+            throw new IllegalArgumentException("Triangle base or height is a negative number.");
+        }
     }
 
 

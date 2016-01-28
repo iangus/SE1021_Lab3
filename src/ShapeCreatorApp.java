@@ -22,7 +22,7 @@ public class ShapeCreatorApp {
      * Use shapes to draw a Christmas scene.
      * @param args Ignored
      */
-    public static void main(String[] args) {
+    public static void main2(String[] args) {
         WinPlotter plotter = new WinPlotter();
 
         // Initialize WinPlotter

@@ -31,8 +31,12 @@ public class Rectangle extends Shape{
      */
     public Rectangle(double x_origin, double y_origin, double w, double h, Color c){
         super(x_origin,y_origin,c);
-        this.width = w;
-        this.height = h;
+        if (h > 0 && w > 0) {
+            this.width = w;
+            this.height = h;
+        } else {
+            throw new IllegalArgumentException("The rectangle height or width is a negative number");
+        }
     }
 
 

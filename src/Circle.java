@@ -28,7 +28,11 @@ public class Circle extends Shape{
      */
     public Circle(double x_origin, double y_origin, double r, Color c){
         super(x_origin, y_origin, c);
-        this.radius = r;
+        if(r < 0){
+            throw new IllegalArgumentException("Circle radius is a negative integer.");
+        }else{
+            this.radius = r;
+        }
     }
 
 
