@@ -40,7 +40,7 @@ public class LabeledRectangle extends Rectangle{
      */
     public void draw(WinPlotter plotter){
         setPenColor(plotter);
-        plotter.printAt(xo + width / 2, yo + height / 2, name);
+        plotter.printAt(xo + height / 2, yo + height / 2, name);
         super.draw(plotter);
     }
 }

@@ -22,7 +22,7 @@ public class ShapeLoaderApp extends WinPlotter {
     private String title;
     private String windowDimensions;
     private String backgroundColor;
-    private List shapes;
+    private List<Shape> shapes;
 
     public static void main(String[] args) {
         Scanner inputScanner = null;
@@ -36,7 +36,10 @@ public class ShapeLoaderApp extends WinPlotter {
             }
         }
         ShapeLoaderApp loader = new ShapeLoaderApp(inputScanner, Logger.getLogger(ShapeLoaderApp.class.getName()));
-
+        WinPlotter plotter = new WinPlotter();
+        loader.buildWindow(plotter);
+        loader.readShapes();
+        loader.drawShapes(plotter);
     }
 
     public ShapeLoaderApp(Scanner fileScanner, Logger logger){
@@ -45,23 +48,23 @@ public class ShapeLoaderApp extends WinPlotter {
         title = input.nextLine();
         windowDimensions =input.nextLine();
         backgroundColor = input.nextLine();
-        WinPlotter plotter = new WinPlotter();
-        buildWindow(plotter);
     }
 
-    private void buildWindow(WinPlotter plotter){
+    public void buildWindow(WinPlotter plotter){
         Scanner dimensions = new Scanner(windowDimensions);
         int red = Integer.valueOf(backgroundColor.substring(1, 3), 16);
         int green = Integer.valueOf(backgroundColor.substring(3, 5), 16);
         int blue = Integer.valueOf(backgroundColor.substring(5, 7), 16);
+        int x_dimension = dimensions.nextInt();
+        int y_dimension = dimensions.nextInt();
         plotter.setWindowTitle(title);
-        plotter.setWindowSize(dimensions.nextInt(), dimensions.nextInt());
+        plotter.setWindowSize(x_dimension, y_dimension);
+        plotter.setPlotBoundaries(0,0,x_dimension,y_dimension);
         plotter.setBackgroundColor(red, green, blue);
-        plotter.setPlotBoundaries(-5,-5,100,100);
     }
 
     public void readShapes(){
-        shapes = new ArrayList<Shape>();
+        shapes = new ArrayList<>();
         try{
             while(input.hasNextLine()){
                 shapes.add(parseShape(input.nextLine()));
@@ -71,8 +74,10 @@ public class ShapeLoaderApp extends WinPlotter {
         }
     }
 
-    public void drawShapes(){
-
+    public void drawShapes(WinPlotter plotter){
+        for(Shape shape: shapes){
+            shape.draw(plotter);
+        }
     }
 
     private static Shape parseShape(String line){
@@ -85,22 +90,22 @@ public class ShapeLoaderApp extends WinPlotter {
         int base;
         int height;
         int width;
-        String label;
+        String label = "";
         switch(shapes.next()){
-            case "P":
+            case "P:":
                 x_origin = shapes.nextInt();
                 y_origin = shapes.nextInt();
                 color = Color.decode(shapes.next());
                 readShape = new Point(x_origin, y_origin, color);
                 break;
-            case "C":
+            case "C:":
                 x_origin = shapes.nextInt();
                 y_origin = shapes.nextInt();
                 color = Color.decode(shapes.next());
                 radius = shapes.nextInt();
                 readShape = new Circle(x_origin, y_origin, radius, color);
                 break;
-            case "T":
+            case "T:":
                 x_origin = shapes.nextInt();
                 y_origin = shapes.nextInt();
                 color = Color.decode(shapes.next());
@@ -108,7 +113,7 @@ public class ShapeLoaderApp extends WinPlotter {
                 height = shapes.nextInt();
                 readShape = new Triangle(x_origin, y_origin, base, height, color);
                 break;
-            case "R":
+            case "R:":
                 x_origin = shapes.nextInt();
                 y_origin = shapes.nextInt();
                 color = Color.decode(shapes.next());
@@ -116,22 +121,22 @@ public class ShapeLoaderApp extends WinPlotter {
                 height = shapes.nextInt();
                 readShape = new Rectangle(x_origin, y_origin, width, height, color);
                 break;
-            case "LT":
+            case "LT:":
                 x_origin = shapes.nextInt();
                 y_origin = shapes.nextInt();
                 color = Color.decode(shapes.next());
                 base = shapes.nextInt();
                 height = shapes.nextInt();
-                label = shapes.next();
+                while(shapes.hasNext()){label += shapes.next() + " ";}
                 readShape = new LabeledTriangle(x_origin, y_origin, base, height, color, label);
                 break;
-            case "LR":
+            case "LR:":
                 x_origin = shapes.nextInt();
                 y_origin = shapes.nextInt();
                 color = Color.decode(shapes.next());
                 width = shapes.nextInt();
                 height = shapes.nextInt();
-                label = shapes.next();
+                while(shapes.hasNext()){label += shapes.next() + " ";}
                 readShape = new LabeledRectangle(x_origin, y_origin, width, height, color, label);
                 break;
             default:
