@@ -1,3 +1,12 @@
+
+/**
+ * SE1021 - 032
+ * Winter 2016
+ * Lab
+ * Name: Ian Guswiler
+ * Created: 1/28/2016
+ */
+
 import edu.msoe.se1010.winPlotter.WinPlotter;
 import java.awt.Color;
 import java.io.File;
@@ -10,11 +19,10 @@ import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 /**
- * SE1021 - 032
- * Winter 2016
- * Lab
- * Name: Ian Guswiler
- * Created: 1/28/2016
+ * Class to load shapes from a text document and use a WinPlotter to sketch them
+ *
+ * @author Ian Guswiler
+ * @version 2/3/2016
  */
 public class ShapeLoaderApp extends WinPlotter {
     private Scanner input;
@@ -24,6 +32,10 @@ public class ShapeLoaderApp extends WinPlotter {
     private String backgroundColor;
     private List<Shape> shapes;
 
+    /**
+     * Main functions of the program
+     * @param args Ignored
+     */
     public static void main(String[] args) {
         Scanner inputScanner = null;
         String uiFile;
@@ -42,6 +54,12 @@ public class ShapeLoaderApp extends WinPlotter {
         loader.drawShapes(plotter);
     }
 
+    /**
+     * Constructor reads the first 3 lines of the document
+     *
+     * @param fileScanner Scanner already associated with the input document
+     * @param logger exception logger already configured for the class
+     */
     public ShapeLoaderApp(Scanner fileScanner, Logger logger){
         input = fileScanner;
         this.logger = logger;
@@ -50,6 +68,10 @@ public class ShapeLoaderApp extends WinPlotter {
         backgroundColor = input.nextLine();
     }
 
+    /**
+     * sets up the WinPlotter window based off of the first tree lines of the input document
+     * @param plotter WinPlotter object to be set up
+     */
     public void buildWindow(WinPlotter plotter){
         Scanner dimensions = new Scanner(windowDimensions);
         int red = Integer.valueOf(backgroundColor.substring(1, 3), 16);
@@ -63,23 +85,37 @@ public class ShapeLoaderApp extends WinPlotter {
         plotter.setBackgroundColor(red, green, blue);
     }
 
+    /**
+     * reads in the rest of the lines of the input document and adds the shapes to an array list
+     */
     public void readShapes(){
         shapes = new ArrayList<>();
-        try{
-            while(input.hasNextLine()){
+        while(input.hasNextLine()) {
+            try {
                 shapes.add(parseShape(input.nextLine()));
+            } catch (InputMismatchException e1) {
+                JOptionPane.showMessageDialog(null, e1.getMessage() + " The line was ignored", "Incorrect input", JOptionPane.ERROR_MESSAGE);
+            } catch (IllegalArgumentException e) {
+                JOptionPane.showMessageDialog(null, "There was an unrecognized shape line and it was ignored.", "Unknown Shape", JOptionPane.ERROR_MESSAGE);
             }
-        } catch (IllegalArgumentException e){
-            JOptionPane.showMessageDialog(null, "There was an unrecognized shape line and it was ignored.", "Unknown Shape", JOptionPane.ERROR_MESSAGE);
         }
     }
 
+    /**
+     * Draws the read shapes onto the winplotter
+     * @param plotter WinPlotter object to be drawn with
+     */
     public void drawShapes(WinPlotter plotter){
         for(Shape shape: shapes){
             shape.draw(plotter);
         }
     }
 
+    /**
+     * Takes in a line from the input document and creates a shape object based on its specifications
+     * @param line line of text from the input document
+     * @return returns a shape object that was read from the input line
+     */
     private static Shape parseShape(String line){
         Scanner shapes = new Scanner(line);
         Shape readShape;
@@ -95,20 +131,20 @@ public class ShapeLoaderApp extends WinPlotter {
             case "P:":
                 x_origin = shapes.nextInt();
                 y_origin = shapes.nextInt();
-                color = Color.decode(shapes.next());
+                color = stringToColor(shapes.next());
                 readShape = new Point(x_origin, y_origin, color);
                 break;
             case "C:":
                 x_origin = shapes.nextInt();
                 y_origin = shapes.nextInt();
-                color = Color.decode(shapes.next());
+                color = stringToColor(shapes.next());
                 radius = shapes.nextInt();
                 readShape = new Circle(x_origin, y_origin, radius, color);
                 break;
             case "T:":
                 x_origin = shapes.nextInt();
                 y_origin = shapes.nextInt();
-                color = Color.decode(shapes.next());
+                color = stringToColor(shapes.next());
                 base = shapes.nextInt();
                 height = shapes.nextInt();
                 readShape = new Triangle(x_origin, y_origin, base, height, color);
@@ -116,7 +152,7 @@ public class ShapeLoaderApp extends WinPlotter {
             case "R:":
                 x_origin = shapes.nextInt();
                 y_origin = shapes.nextInt();
-                color = Color.decode(shapes.next());
+                color = stringToColor(shapes.next());
                 width = shapes.nextInt();
                 height = shapes.nextInt();
                 readShape = new Rectangle(x_origin, y_origin, width, height, color);
@@ -124,7 +160,7 @@ public class ShapeLoaderApp extends WinPlotter {
             case "LT:":
                 x_origin = shapes.nextInt();
                 y_origin = shapes.nextInt();
-                color = Color.decode(shapes.next());
+                color = stringToColor(shapes.next());
                 base = shapes.nextInt();
                 height = shapes.nextInt();
                 while(shapes.hasNext()){label += shapes.next() + " ";}
@@ -133,7 +169,7 @@ public class ShapeLoaderApp extends WinPlotter {
             case "LR:":
                 x_origin = shapes.nextInt();
                 y_origin = shapes.nextInt();
-                color = Color.decode(shapes.next());
+                color = stringToColor(shapes.next());
                 width = shapes.nextInt();
                 height = shapes.nextInt();
                 while(shapes.hasNext()){label += shapes.next() + " ";}
@@ -146,28 +182,18 @@ public class ShapeLoaderApp extends WinPlotter {
         return readShape;
     }
 
-    private static Color stringToColor(String hexTriplet){
-        Color conversion;
-        /*
-        if(hexTriplet.length() < 7){
-            throw new InputMismatchException("hexTriplet string input was less than seven characters; therefor it was in an incorrect format");
-        } else if(hexTriplet.charAt(0) != '#'){
-            throw new InputMismatchException("hexTriplet string input does not start with the # character");
-        }else{
-            try{
-                Scanner readHex = new Scanner(hexTriplet);
-                while(readHex.hasNextByte(6)){
-
-                }
-            }catch(InputMismatchException e){
-
-            }
-        }*/
+    /**
+     * converts the hextriple input into a color
+     * @param hexcode Hextriple input string to be converted to a color
+     * @return returns the color created from the input string
+     */
+    private static Color stringToColor(String hexcode){
+        Color colorConvert;
         try{
-            conversion = Color.decode(hexTriplet);
-        }catch (InputMismatchException e){
-            throw new InputMismatchException("hexTriplet string input was not in the correct format");
+            colorConvert = Color.decode(hexcode);
+        }catch(InputMismatchException e){
+            throw new InputMismatchException("Color input was not in the correct hextriple format.");
         }
-        return conversion;
+        return colorConvert;
     }
 }
